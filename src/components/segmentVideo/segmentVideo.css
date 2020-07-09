@@ -1,0 +1,26 @@
+.seg-container{
+  width: 100%;
+  padding: 20px;
+}
+.header{
+  font-size: 24px;
+}
+.inputLabel{
+  color: purple;
+  font-size: 14px;
+  font-weight: 600;
+}
+.btn{
+  background-color: #ff3399;
+  color: #fff;
+  border-color: transparent;
+}
+.range-group{
+  display: flex;
+}
+.group{
+  display: flex;
+  margin: 10px;
+  flex-direction: column;
+  justify-content: flex-end;
+}
