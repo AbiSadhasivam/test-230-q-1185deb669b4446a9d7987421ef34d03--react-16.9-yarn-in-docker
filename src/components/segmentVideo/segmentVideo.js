@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Button, Form, FormGroup, Label, Input } from "reactstrap";
 import { apiFetch } from "../../services/apiService/apiService";
+import Loader from "../spinner/spinner";
 import "./segmentVideo.css";
 import { isValidURL, isValidInterval } from "../../services/utils/utils";
 
@@ -17,6 +18,14 @@ function SegmentVideo() {
     height: "",
     width: "",
   });
+
+  const [showLoader, setLoaderVisiblity] = useState(false);
+
+  // Visiblity
+
+  let toggleLoader = (isVisible) => {
+    setLoaderVisiblity(isVisible);
+  };
 
   let settingTypeChanged = (evt) => {
     setsegmentType(evt.target.value);
@@ -58,6 +67,7 @@ function SegmentVideo() {
     }));
   };
   let getSegementedVideo = () => {
+    toggleLoader(true);
     let method = "POST",
       apiEndpoint = "http://3.216.31.206:4059/api/",
       data = {
@@ -83,7 +93,12 @@ function SegmentVideo() {
       }
     }
     apiFetch(apiEndpoint, method, data).then((data) => {
-      setSegmentedVideos(data.interval_videos);
+      toggleLoader(false);
+      if (data) {
+        setSegmentedVideos(data.interval_videos);
+      } else {
+        //show notification
+      }
     });
   };
   let videoLinkChanged = (evt) => {
@@ -252,260 +267,275 @@ function SegmentVideo() {
   }, [combineSettings]);
 
   return (
-    <div className='container'>
-      <div className='seg-container'>
-        <div className='header'>Segment Video</div>
-        <hr />
-        <div>
-          <Form>
-            <FormGroup>
-              <Label className='inputLabel' for='videoLink'>
-                Video Link...
-              </Label>
-              <Input
-                type='text'
-                name='link'
-                id='videoLink'
-                className='video-link'
-                onChange={videoLinkChanged}
-              />
-            </FormGroup>
-            <FormGroup>
-              <Label className='inputLabel' for='selectSettings'>
-                Select segment settings
-              </Label>
-              <Input
-                type='select'
-                className='segment-setting'
-                name='select'
-                id='selectSettings'
-                onChange={settingTypeChanged}
-              >
-                <option value='Interval Duration'>Interval Duration</option>
-                <option value='Range Duration'>Range Duration</option>
-                <option value='Number of Segments'>Number of Segments</option>
-              </Input>
-            </FormGroup>
-            {segmentType === "Interval Duration" && (
+    <>
+      {showLoader && <Loader></Loader>}
+      <div className='container'>
+        <div className='seg-container'>
+          <div className='header'>Segment Video</div>
+          <hr />
+          <div>
+            <Form>
               <FormGroup>
                 <Label className='inputLabel' for='videoLink'>
-                  Interval Duration(in seconds)...
-                </Label>
-                <Input
-                  type='number'
-                  name='interval'
-                  id='intervalDuration'
-                  className='interval-duration'
-                  onChange={segmentIntervalChanged}
-                />
-              </FormGroup>
-            )}
-            {segmentType === "Range Duration" && (
-              <div>
-                <Button className='btn add-range-duration' onClick={addRangeDuration}>
-                  Add Range Duration
-                </Button>
-                {segmentSettings["interval_range"] &&
-                  segmentSettings["interval_range"].map((range, id) => (
-                    <FormGroup className='range-group'>
-                      <div className='group'>
-                        <Label className='inputLabel' for='range-start'>
-                          Range Duration Start
-                        </Label>
-                        <Input
-                          type='number'
-                          name='range-start'
-                          id='range-start'
-                          className={"range-duration-start-" + Number(id + 1)}
-                          data-id={id}
-                          data-type='start'
-                          value={range.start}
-                          onChange={segmentRangeChanged}
-                        />
-                      </div>
-                      <div className='group'>
-                        <Label className='inputLabel' for='range-end'>
-                          Range Duration Start
-                        </Label>
-                        <Input
-                          type='number'
-                          name='range-end'
-                          id='range-end'
-                          data-id={id}
-                          data-type='end'
-                          value={range.end}
-                          className={"range-duration-end-" + Number(id + 1)}
-                          onChange={segmentRangeChanged}
-                        />
-                      </div>
-                      <div className='group'>
-                        <Button
-                          className={
-                            "btn delete-range-duration-" + Number(id + 1)
-                          }
-                          data-id={id}
-                          onClick={deleteRange}
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </FormGroup>
-                  ))}
-              </div>
-            )}
-            {segmentType === "Number of Segments" && (
-              <FormGroup>
-                <Label className='inputLabel' for='videoLink'>
-                  Number of Segments...
-                </Label>
-                <Input
-                  type='number'
-                  name='interval'
-                  id='noOfSegments'
-                  className='num-segments'
-                  onChange={numSegmentsChanged}
-                />
-              </FormGroup>
-            )}
-            <Button
-              className='btn process-video'
-              disabled={disableSegment}
-              onClick={getSegementedVideo}
-            >
-              Segment Video
-            </Button>
-          </Form>
-        </div>
-        <div>
-          {segmentedVideos.map((vid, idx) => (
-            <video width='320' height='240' controls className={"segmented-video-"+Number(idx+1)}>
-              <source src={vid.video_url} type='video/mp4' className={"segmented-video-source-"+Number(idx+1)}></source>
-            </video>
-          ))}
-        </div>
-      </div>
-      <div className='seg-container'>
-        <div className='header'>Combine Video</div>
-        <hr />
-        <Button className='btn add-video' onClick={addVideo}>
-          Add Video
-        </Button>
-        {combineSettings["segments"] &&
-          combineSettings["segments"].map((video, id) => (
-            <FormGroup className='range-group'>
-              <div className='group'>
-                <Label className='inputLabel' for='video-link'>
                   Video Link...
                 </Label>
                 <Input
                   type='text'
-                  name='videoLink'
-                  id='video-link'
-                  className={"combine-video-" + Number(id + 1)}
-                  data-id={id}
-                  data-type='video_url'
-                  value={video.video_url}
-                  onChange={combineSettingsChanged}
+                  name='link'
+                  id='videoLink'
+                  className='video-link'
+                  onChange={videoLinkChanged}
                 />
-              </div>
-              <div className='group'>
-                <Label className='inputLabel' for='combine-start'>
-                  Start at(in Sec)
+              </FormGroup>
+              <FormGroup>
+                <Label className='inputLabel' for='selectSettings'>
+                  Select segment settings
                 </Label>
                 <Input
-                  type='number'
-                  name='combine-start'
-                  id='combine-start'
-                  className={
-                    "combine-video-range-duration-start-" + Number(id + 1)
-                  }
-                  data-id={id}
-                  data-type='start'
-                  value={video.start}
-                  onChange={combineSettingsChanged}
-                />
-              </div>
-              <div className='group'>
-                <Label className='inputLabel' for='combine-end'>
-                  End at(in Sec)
-                </Label>
-                <Input
-                  type='number'
-                  name='combine-end'
-                  id='combine-end'
-                  className={
-                    "combine-video-range-duration-end-" + Number(id + 1)
-                  }
-                  data-id={id}
-                  data-type='end'
-                  value={video.end}
-                  onChange={combineSettingsChanged}
-                />
-              </div>
-              <div className='group'>
-                <Button
-                  className={"btn delete-range-duration-" + Number(id + 1)}
-                  data-id={id}
-                  onClick={deleteSegment}
+                  type='select'
+                  className='segment-setting'
+                  name='select'
+                  id='selectSettings'
+                  onChange={settingTypeChanged}
                 >
-                  Delete
-                </Button>
-              </div>
-            </FormGroup>
-          ))}
-        <FormGroup className='range-group'>
-          <div className='group'>
-            <Label className='inputLabel' for='video-height'>
-              Video Height...
-            </Label>
-            <Input
-              type='number'
-              name='video-height'
-              id='video-height'
-              className='video-height'
-              data-type='height'
-              value={combineSettings.height}
-              onChange={combineSettingsChanged}
-            />
+                  <option value='Interval Duration'>Interval Duration</option>
+                  <option value='Range Duration'>Range Duration</option>
+                  <option value='Number of Segments'>Number of Segments</option>
+                </Input>
+              </FormGroup>
+              {segmentType === "Interval Duration" && (
+                <FormGroup>
+                  <Label className='inputLabel' for='videoLink'>
+                    Interval Duration(in seconds)...
+                  </Label>
+                  <Input
+                    type='number'
+                    name='interval'
+                    id='intervalDuration'
+                    className='interval-duration'
+                    onChange={segmentIntervalChanged}
+                  />
+                </FormGroup>
+              )}
+              {segmentType === "Range Duration" && (
+                <div>
+                  <Button
+                    className='btn add-range-duration'
+                    onClick={addRangeDuration}
+                  >
+                    Add Range Duration
+                  </Button>
+                  {segmentSettings["interval_range"] &&
+                    segmentSettings["interval_range"].map((range, id) => (
+                      <FormGroup className='range-group'>
+                        <div className='group'>
+                          <Label className='inputLabel' for='range-start'>
+                            Range Duration Start
+                          </Label>
+                          <Input
+                            type='number'
+                            name='range-start'
+                            id='range-start'
+                            className={"range-duration-start-" + Number(id + 1)}
+                            data-id={id}
+                            data-type='start'
+                            value={range.start}
+                            onChange={segmentRangeChanged}
+                          />
+                        </div>
+                        <div className='group'>
+                          <Label className='inputLabel' for='range-end'>
+                            Range Duration Start
+                          </Label>
+                          <Input
+                            type='number'
+                            name='range-end'
+                            id='range-end'
+                            data-id={id}
+                            data-type='end'
+                            value={range.end}
+                            className={"range-duration-end-" + Number(id + 1)}
+                            onChange={segmentRangeChanged}
+                          />
+                        </div>
+                        <div className='group'>
+                          <Button
+                            className={
+                              "btn delete-range-duration-" + Number(id + 1)
+                            }
+                            data-id={id}
+                            onClick={deleteRange}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </FormGroup>
+                    ))}
+                </div>
+              )}
+              {segmentType === "Number of Segments" && (
+                <FormGroup>
+                  <Label className='inputLabel' for='videoLink'>
+                    Number of Segments...
+                  </Label>
+                  <Input
+                    type='number'
+                    name='interval'
+                    id='noOfSegments'
+                    className='num-segments'
+                    onChange={numSegmentsChanged}
+                  />
+                </FormGroup>
+              )}
+              <Button
+                className='btn process-video'
+                disabled={disableSegment}
+                onClick={getSegementedVideo}
+              >
+                Segment Video
+              </Button>
+            </Form>
           </div>
-          <div className='group'>
-            <Label className='inputLabel' for='video-width'>
-              Video width...
-            </Label>
-            <Input
-              type='number'
-              name='video-width'
-              id='video-width'
-              className='video-width'
-              data-type='width'
-              value={combineSettings.width}
-              onChange={combineSettingsChanged}
-            />
+          <div>
+            {segmentedVideos.map((vid, idx) => (
+              <video
+                width='320'
+                height='240'
+                controls
+                className={"segmented-video-" + Number(idx + 1)}
+              >
+                <source
+                  src={vid.video_url}
+                  type='video/mp4'
+                  className={"segmented-video-source-" + Number(idx + 1)}
+                ></source>
+              </video>
+            ))}
           </div>
-        </FormGroup>
-        <Button
-          className='btn combine-video'
-          disabled={disableCombine}
-          onClick={getCombinedVideo}
-        >
-          Combine Video
-        </Button>
-        {combinedVideo && (
-          <video
-            width={combineSettings.width}
-            className='combined-video'
-            height={combineSettings.height}
-            controls
+        </div>
+        <div className='seg-container'>
+          <div className='header'>Combine Video</div>
+          <hr />
+          <Button className='btn add-video' onClick={addVideo}>
+            Add Video
+          </Button>
+          {combineSettings["segments"] &&
+            combineSettings["segments"].map((video, id) => (
+              <FormGroup className='range-group'>
+                <div className='group'>
+                  <Label className='inputLabel' for='video-link'>
+                    Video Link...
+                  </Label>
+                  <Input
+                    type='text'
+                    name='videoLink'
+                    id='video-link'
+                    className={"combine-video-" + Number(id + 1)}
+                    data-id={id}
+                    data-type='video_url'
+                    value={video.video_url}
+                    onChange={combineSettingsChanged}
+                  />
+                </div>
+                <div className='group'>
+                  <Label className='inputLabel' for='combine-start'>
+                    Start at(in Sec)
+                  </Label>
+                  <Input
+                    type='number'
+                    name='combine-start'
+                    id='combine-start'
+                    className={
+                      "combine-video-range-duration-start-" + Number(id + 1)
+                    }
+                    data-id={id}
+                    data-type='start'
+                    value={video.start}
+                    onChange={combineSettingsChanged}
+                  />
+                </div>
+                <div className='group'>
+                  <Label className='inputLabel' for='combine-end'>
+                    End at(in Sec)
+                  </Label>
+                  <Input
+                    type='number'
+                    name='combine-end'
+                    id='combine-end'
+                    className={
+                      "combine-video-range-duration-end-" + Number(id + 1)
+                    }
+                    data-id={id}
+                    data-type='end'
+                    value={video.end}
+                    onChange={combineSettingsChanged}
+                  />
+                </div>
+                <div className='group'>
+                  <Button
+                    className={"btn delete-range-duration-" + Number(id + 1)}
+                    data-id={id}
+                    onClick={deleteSegment}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </FormGroup>
+            ))}
+          <FormGroup className='range-group'>
+            <div className='group'>
+              <Label className='inputLabel' for='video-height'>
+                Video Height...
+              </Label>
+              <Input
+                type='number'
+                name='video-height'
+                id='video-height'
+                className='video-height'
+                data-type='height'
+                value={combineSettings.height}
+                onChange={combineSettingsChanged}
+              />
+            </div>
+            <div className='group'>
+              <Label className='inputLabel' for='video-width'>
+                Video width...
+              </Label>
+              <Input
+                type='number'
+                name='video-width'
+                id='video-width'
+                className='video-width'
+                data-type='width'
+                value={combineSettings.width}
+                onChange={combineSettingsChanged}
+              />
+            </div>
+          </FormGroup>
+          <Button
+            className='btn combine-video'
+            disabled={disableCombine}
+            onClick={getCombinedVideo}
           >
-            <source
-              className='combined-video-source'
-              src={combinedVideo.video_url}
-              type='video/mp4'
-            ></source>
-          </video>
-        )}
+            Combine Video
+          </Button>
+          {combinedVideo && (
+            <video
+              width={combineSettings.width}
+              className='combined-video'
+              height={combineSettings.height}
+              controls
+            >
+              <source
+                className='combined-video-source'
+                src={combinedVideo.video_url}
+                type='video/mp4'
+              ></source>
+            </video>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

@@ -1,0 +1,13 @@
+.overlay{
+  background-color: #000000;
+  height: 100%;
+  position: fixed;
+  opacity: 0.8;
+  width: 100%;
+  z-index: 1;
+}
+.spinner{
+  width : 75px;
+  height: 75px;
+  color : #fff;
+}
