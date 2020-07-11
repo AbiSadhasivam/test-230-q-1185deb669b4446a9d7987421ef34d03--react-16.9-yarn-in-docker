@@ -4,7 +4,7 @@ import { apiFetch } from "../../services/apiService/apiService";
 import Loader from "../spinner/spinner";
 import "./segmentVideo.css";
 import { isValidURL, isValidInterval } from "../../services/utils/utils";
-
+import apiDetails from "../../constants/constants";
 function SegmentVideo() {
   const [videoLink, setVideoLink] = useState();
   const [segmentType, setsegmentType] = useState("Interval Duration");
@@ -69,7 +69,7 @@ function SegmentVideo() {
   let getSegementedVideo = () => {
     toggleLoader(true);
     let method = "POST",
-      apiEndpoint = "http://3.216.31.206:4059/api/",
+      apiEndpoint = apiDetails['apiEndpoint'],
       data = {
         video_link: videoLink,
       };
@@ -78,15 +78,15 @@ function SegmentVideo() {
     switch (segmentType) {
       case "Interval Duration":
         data = { ...data, ...segmentSettings };
-        apiEndpoint = apiEndpoint + "process-interval";
+        apiEndpoint = apiEndpoint + apiDetails['interval'];
         break;
       case "Number of Segments":
         data = { ...data, ...segmentSettings };
-        apiEndpoint = apiEndpoint + "process-segments";
+        apiEndpoint = apiEndpoint + apiDetails['segments'];
         break;
       case "Range Duration":
         data = { ...data, ...segmentSettings };
-        apiEndpoint = apiEndpoint + "process-range";
+        apiEndpoint = apiEndpoint + apiDetails['range'];
         break;
       default: {
         console.log("nothing");
@@ -170,7 +170,7 @@ function SegmentVideo() {
   };
   let getCombinedVideo = () => {
     let method = "POST",
-      apiEndpoint = "http://3.216.31.206:4059/api/";
+      apiEndpoint = apiDetails['apiEndpoint'];
     apiEndpoint = apiEndpoint + "combine-video";
 
     apiFetch(apiEndpoint, method, combineSettings).then((data) => {
