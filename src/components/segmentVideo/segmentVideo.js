@@ -95,7 +95,7 @@ function SegmentVideo() {
   // Video segmentation related function
   let getSegementedVideo = () => {
     let method = 'POST',
-      apiEndpoint = process.env.REACT_APP_API_URL,
+      apiEndpoint = process.env.REACT_APP_API_URL.trim() + '/api/',
       data = {
         video_link: videoLink,
       };
@@ -187,7 +187,7 @@ function SegmentVideo() {
   };
   let getCombinedVideo = () => {
     let method = 'POST',
-      apiEndpoint = process.env.REACT_APP_API_URL;
+      apiEndpoint = process.env.REACT_APP_API_URL.trim()+'/api/';
 
     apiEndpoint = apiEndpoint + 'combine-video';
     toggleLoader(true);
