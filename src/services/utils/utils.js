@@ -8,6 +8,6 @@ export const isValidURL = function (str) {
   return res !== null;
 };
 
-export const isValidInterval = function (interval) {
-  return interval > 0 && !isNaN(interval);
+export const isValidInput = function (num) {
+  return num > 0 && !isNaN(num);
 };

@@ -1,8 +1,9 @@
+/* eslint-disable array-callback-return */
 import React, { useState, useEffect } from 'react';
 import { Button, Form, FormGroup, Label, Input } from 'reactstrap';
 
 import { apiFetch } from '../../services/apiService/apiService';
-import { isValidURL, isValidInterval } from '../../services/utils/utils';
+import { isValidURL, isValidInput } from '../../services/utils/utils';
 
 import Loader from '../Spinner/Spinner';
 import apiDetails from '../../constants/constants';
@@ -32,30 +33,37 @@ function SegmentVideo() {
   let toggleLoader = (isVisible) => {
     setLoaderVisiblity(isVisible);
   };
+  let videoLinkChanged = (evt) => {
+    setVideoLink(evt.target.value);
+  };
 
   let settingTypeChanged = (evt) => {
     setsegmentType(evt.target.value);
     setSegmentSettings({});
   };
+
+  // Interval related functions
   let segmentIntervalChanged = (evt) => {
-    let val = Number(evt.target.value);
     setSegmentSettings((prevState) => ({
       ...prevState,
-      interval_duration: val,
+      interval_duration: +evt.target.value,
     }));
   };
+
+  // Segments-number related functions
   let numSegmentsChanged = (evt) => {
-    let val = Number(evt.target.value);
     setSegmentSettings((prevState) => ({
       ...prevState,
-      no_of_segments: val,
+      no_of_segments: +evt.target.value,
     }));
   };
+
+  // Range related functions
   let segmentRangeChanged = (evt) => {
-    let val = Number(evt.target.value);
     let { id, type } = evt.target.dataset;
     let rangeList = segmentSettings.interval_range;
-    rangeList[id][type] = val;
+
+    rangeList[id][type] = +evt.target.value;
     setSegmentSettings((prevState) => ({
       ...prevState,
       interval_range: rangeList,
@@ -63,6 +71,7 @@ function SegmentVideo() {
   };
   let addRangeDuration = (evt) => {
     let rangeList = segmentSettings['interval_range'] || [];
+
     rangeList.push({
       start: '',
       end: '',
@@ -72,32 +81,43 @@ function SegmentVideo() {
       interval_range: rangeList,
     }));
   };
+  let deleteRange = (evt) => {
+    let { id } = evt.target.dataset;
+    let rangeList = segmentSettings.interval_range;
+
+    rangeList.splice(id, 1);
+    setSegmentSettings((prevState) => ({
+      ...prevState,
+      interval_range: rangeList,
+    }));
+  };
+
+  // Video segmentation related function
   let getSegementedVideo = () => {
-    toggleLoader(true);
     let method = 'POST',
       apiEndpoint = process.env.REACT_APP_API_URL,
       data = {
         video_link: videoLink,
       };
 
+    toggleLoader(true);
     setSegmentedVideos([]);
+
     switch (segmentType) {
       case 'Interval Duration':
-        data = { ...data, ...segmentSettings };
         apiEndpoint = apiEndpoint + apiDetails['interval'];
         break;
       case 'Number of Segments':
-        data = { ...data, ...segmentSettings };
         apiEndpoint = apiEndpoint + apiDetails['segments'];
         break;
       case 'Range Duration':
-        data = { ...data, ...segmentSettings };
         apiEndpoint = apiEndpoint + apiDetails['range'];
         break;
       default: {
         console.log('nothing');
       }
     }
+    data = { ...data, ...segmentSettings };
     apiFetch(apiEndpoint, method, data).then(
       (data) => {
         toggleLoader(false);
@@ -112,19 +132,8 @@ function SegmentVideo() {
       }
     );
   };
-  let videoLinkChanged = (evt) => {
-    setVideoLink(evt.target.value);
-  };
-  let deleteRange = (evt) => {
-    let { id } = evt.target.dataset;
-    let rangeList = segmentSettings.interval_range;
 
-    rangeList.splice(id, 1);
-    setSegmentSettings((prevState) => ({
-      ...prevState,
-      interval_range: rangeList,
-    }));
-  };
+  // Combine segments related functions
   let addVideo = (evt) => {
     let combineVideoList = combineSettings.segments;
     combineVideoList.push({
@@ -138,22 +147,20 @@ function SegmentVideo() {
     }));
   };
   let combineSettingsChanged = (evt) => {
-    let val = '';
     let segments = [];
     let { id, type } = evt.target.dataset;
+
     switch (type) {
       case 'height':
       case 'width':
-        val = evt.target.value;
         setCombineVideoSettings((prevState) => ({
           ...prevState,
-          [type]: val,
+          [type]: +evt.target.value,
         }));
         break;
       case 'video_url':
         segments = combineSettings['segments'];
-        val = evt.target.value;
-        segments[id][type] = val;
+        segments[id][type] = evt.target.value;
         setCombineVideoSettings((prevState) => ({
           ...prevState,
           segments: segments,
@@ -161,8 +168,7 @@ function SegmentVideo() {
         break;
       default:
         segments = combineSettings['segments'];
-        val = +evt.target.value;
-        segments[id][type] = val;
+        segments[id][type] = +evt.target.value;
         setCombineVideoSettings((prevState) => ({
           ...prevState,
           segments: segments,
@@ -181,9 +187,11 @@ function SegmentVideo() {
   };
   let getCombinedVideo = () => {
     let method = 'POST',
-      apiEndpoint = apiDetails['apiEndpoint'];
+      apiEndpoint = process.env.REACT_APP_API_URL;
+
     apiEndpoint = apiEndpoint + 'combine-video';
     toggleLoader(true);
+
     apiFetch(apiEndpoint, method, combineSettings).then(
       (data) => {
         toggleLoader(false);
@@ -199,31 +207,28 @@ function SegmentVideo() {
     );
   };
 
+  // Effect changes
   useEffect(() => {
     let isNotValid = false;
     switch (segmentType) {
       case 'Interval Duration':
         isNotValid =
           !isValidURL(videoLink) ||
-          !isValidInterval(segmentSettings['interval_duration']);
+          !isValidInput(segmentSettings['interval_duration']);
         break;
       case 'Range Duration':
         if (
           segmentSettings['interval_range'] &&
           segmentSettings['interval_range'].length
         ) {
+          let segments = segmentSettings['interval_range'];
+
           isNotValid = false;
-          let startArr = segmentSettings['interval_range'].map((range) => {
-            return range.start;
-          });
-          let endArr = segmentSettings['interval_range'].map((range) => {
-            return range.end;
-          });
-          startArr.forEach((element, id) => {
-            let start = /[0-9]/.test(element) ? Number(element) : null;
-            let end = /[0-9]/.test(endArr[id]) ? Number(endArr[id]) : null;
-            if (start < 0 || end <= start || start === null || end === null) {
-              isNotValid = true;
+          isNotValid = segments.some((segment) => {
+            let start = /[0-9]/.test(segment.start) ? +segment.start : -1;
+            let end = /[0-9]/.test(segment.end) ? +segment.end : -1;
+            if (start < 0 || end <= start) {
+              return true;
             }
           });
         } else {
@@ -233,11 +238,9 @@ function SegmentVideo() {
       case 'Number of Segments':
         isNotValid =
           !isValidURL(videoLink) ||
-          !isValidInterval(segmentSettings['no_of_segments']);
+          !isValidInput(segmentSettings['no_of_segments']);
         break;
-      default: {
-        console.log('nothing');
-      }
+      default:
     }
 
     isNotValid ? setDisableSegment(true) : setDisableSegment(false);
@@ -248,36 +251,18 @@ function SegmentVideo() {
       segments = combineSettings['segments'],
       height = /[0-9]/.test(combineSettings['height'])
         ? +combineSettings['height']
-        : null,
+        : -1,
       width = /[0-9]/.test(combineSettings['width'])
         ? +combineSettings['width']
-        : null;
-    isNotValid =
-      height === null || width === null || height <= 0 || width <= 0
-        ? true
-        : false;
+        : -1;
+    isNotValid = height <= 0 || width <= 0 ? true : false;
     if (segments.length && !isNotValid) {
-      let videoArr = segments.map((video) => {
-        return video.video_url;
-      });
-      let startArr = segments.map((video) => {
-        return video.start;
-      });
-      let endArr = segments.map((video) => {
-        return video.end;
-      });
-      startArr.forEach((element, idx) => {
-        let video = isValidURL(videoArr[idx]);
-        let start = /[0-9]/.test(element) ? +element : null;
-        let end = /[0-9]/.test(endArr[idx]) ? +endArr[idx] : null;
-        if (
-          !video ||
-          start < 0 ||
-          end <= start ||
-          start === null ||
-          end === null
-        ) {
-          isNotValid = true;
+      isNotValid = segments.some((segment) => {
+        let video = isValidURL(segment.video_url);
+        let start = /[0-9]/.test(segment.start) ? +segment.start : -1;
+        let end = /[0-9]/.test(segment.end) ? +segment.end : -1;
+        if (!video || start < 0 || end <= start) {
+          return true;
         }
       });
     } else {
