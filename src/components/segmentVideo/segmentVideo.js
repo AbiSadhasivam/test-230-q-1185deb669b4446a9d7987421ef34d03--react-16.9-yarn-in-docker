@@ -149,13 +149,13 @@ function SegmentVideo() {
   let combineSettingsChanged = (evt) => {
     let segments = [];
     let { id, type } = evt.target.dataset;
-
+    let val = +evt.target.value;
     switch (type) {
       case 'height':
       case 'width':
         setCombineVideoSettings((prevState) => ({
           ...prevState,
-          [type]: +evt.target.value,
+          [type]: val,
         }));
         break;
       case 'video_url':
