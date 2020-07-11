@@ -1,6 +1,6 @@
 .seg-container{
-  width: 100%;
   padding: 20px;
+  width: 100%;
 }
 .header{
   font-size: 24px;
@@ -12,15 +12,15 @@
 }
 .btn{
   background-color: #ff3399;
-  color: #fff;
   border-color: transparent;
+  color: #fff;
 }
 .range-group{
   display: flex;
 }
 .group{
   display: flex;
-  margin: 10px;
   flex-direction: column;
   justify-content: flex-end;
+  margin: 10px;
 }
