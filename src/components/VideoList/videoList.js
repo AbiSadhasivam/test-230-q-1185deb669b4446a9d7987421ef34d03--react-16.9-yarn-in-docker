@@ -1,5 +1,5 @@
 import React from "react";
-import "./videoList.css";
+import "./VideoList.css";
 function VideoList(props) {
   let videos = props["video-list"];
   let width = props.width || 300;

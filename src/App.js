@@ -2,7 +2,7 @@ import React from "react";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.css";
 import { ToastContainer } from "react-toastify";
-import SegmentVideo from "../src/components/segmentVideo/segmentVideo";
+import SegmentVideo from "../src/components/SegmentVideo/SegmentVideo";
 
 function App() {
   return (

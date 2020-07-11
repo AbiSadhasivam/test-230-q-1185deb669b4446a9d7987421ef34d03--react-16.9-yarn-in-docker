@@ -4,12 +4,12 @@ import { Button, Form, FormGroup, Label, Input } from "reactstrap";
 import { apiFetch } from "../../services/apiService/apiService";
 import { isValidURL, isValidInterval } from "../../services/utils/utils";
 
-import Loader from "../spinner/spinner";
+import Loader from "../Spinner/Spinner";
 import apiDetails from "../../constants/constants";
-import toast from "../toast/Toast";
-import VideoList from "../VideoList/videoList";
+import toast from "../Toast/Toast";
+import VideoList from "../VideoList/VideoList";
 
-import "./segmentVideo.css";
+import "./SegmentVideo.css";
 
 function SegmentVideo() {
   const [videoLink, setVideoLink] = useState();
