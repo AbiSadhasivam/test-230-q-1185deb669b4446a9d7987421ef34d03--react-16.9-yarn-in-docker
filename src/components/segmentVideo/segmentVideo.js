@@ -3,7 +3,6 @@ import { Button, Form, FormGroup, Label, Input } from "reactstrap";
 
 import { apiFetch } from "../../services/apiService/apiService";
 import { isValidURL, isValidInterval } from "../../services/utils/utils";
-import "react-toastify/dist/ReactToastify.css";
 
 import Loader from "../spinner/spinner";
 import apiDetails from "../../constants/constants";
@@ -353,7 +352,7 @@ function SegmentVideo() {
                   </Button>
                   {segmentSettings["interval_range"] &&
                     segmentSettings["interval_range"].map((range, id) => (
-                      <FormGroup className='range-group'>
+                      <FormGroup className='range-group' key={"interval-" + id}>
                         <div className='group'>
                           <Label className='inputLabel' for='range-start'>
                             Range Duration Start
@@ -422,7 +421,7 @@ function SegmentVideo() {
               </Button>
             </Form>
           </div>
-          <div className="d-flex justify-content-center align-items-center">
+          <div className='d-flex justify-content-center align-items-center'>
             {segmentedVideos.length > 0 && (
               <VideoList
                 video-list={segmentedVideos}
@@ -440,7 +439,7 @@ function SegmentVideo() {
           </Button>
           {combineSettings["segments"] &&
             combineSettings["segments"].map((video, id) => (
-              <FormGroup className='range-group'>
+              <FormGroup className='range-group' key={"range-" + id}>
                 <div className='group'>
                   <Label className='inputLabel' for='video-link'>
                     Video Link...
@@ -538,7 +537,7 @@ function SegmentVideo() {
           >
             Combine Video
           </Button>
-          <div className="d-flex justify-content-center align-items-center">
+          <div className='d-flex justify-content-center align-items-center'>
             {combinedVideo && (
               <VideoList
                 video-list={combinedVideo}
