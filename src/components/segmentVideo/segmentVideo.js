@@ -8,6 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Loader from "../spinner/spinner";
 import apiDetails from "../../constants/constants";
 import toast from "../toast/Toast";
+import VideoList from "../VideoList/videoList";
 
 import "./segmentVideo.css";
 
@@ -421,21 +422,14 @@ function SegmentVideo() {
               </Button>
             </Form>
           </div>
-          <div>
-            {segmentedVideos.map((vid, idx) => (
-              <video
-                width='320'
-                height='240'
-                controls
-                className={"segmented-video-" + Number(idx + 1)}
-              >
-                <source
-                  src={vid.video_url}
-                  type='video/mp4'
-                  className={"segmented-video-source-" + Number(idx + 1)}
-                ></source>
-              </video>
-            ))}
+          <div className="d-flex justify-content-center align-items-center">
+            {segmentedVideos.length > 0 && (
+              <VideoList
+                video-list={segmentedVideos}
+                video-name='segmented-video-'
+                src-name='segmented-video-source-'
+              ></VideoList>
+            )}
           </div>
         </div>
         <div className='seg-container'>
@@ -544,20 +538,18 @@ function SegmentVideo() {
           >
             Combine Video
           </Button>
-          {combinedVideo && (
-            <video
-              width={combineSettings.width}
-              className='combined-video'
-              height={combineSettings.height}
-              controls
-            >
-              <source
-                className='combined-video-source'
-                src={combinedVideo.video_url}
-                type='video/mp4'
-              ></source>
-            </video>
-          )}
+          <div className="d-flex justify-content-center align-items-center">
+            {combinedVideo && (
+              <VideoList
+                video-list={combinedVideo}
+                video-name='combined-video'
+                src-name='combined-video-source'
+                width={combineSettings.width}
+                height={combineSettings.height}
+                type='combine'
+              ></VideoList>
+            )}
+          </div>
         </div>
       </div>
     </>
