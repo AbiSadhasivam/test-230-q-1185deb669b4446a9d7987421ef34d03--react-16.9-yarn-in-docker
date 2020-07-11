@@ -75,7 +75,7 @@ function SegmentVideo() {
   let getSegementedVideo = () => {
     toggleLoader(true);
     let method = "POST",
-      apiEndpoint = apiDetails["apiEndpoint"],
+      apiEndpoint = process.env.REACT_APP_API_URL,
       data = {
         video_link: videoLink,
       };
@@ -83,12 +83,8 @@ function SegmentVideo() {
     setSegmentedVideos([]);
     switch (segmentType) {
       case "Interval Duration":
-        data = {
-          video_link:
-            "https://codejudge-question-artifacts.s3.ap-south-1.amazonaws.com/q-94/big_buck_bunny_720p_2mb.mp4",
-          interval_duration: 5,
-        };
-        apiEndpoint += "process-interval";
+        data = { ...data, ...segmentSettings };
+        apiEndpoint = apiEndpoint + apiDetails["interval"]
         break;
       case "Number of Segments":
         data = { ...data, ...segmentSettings };
