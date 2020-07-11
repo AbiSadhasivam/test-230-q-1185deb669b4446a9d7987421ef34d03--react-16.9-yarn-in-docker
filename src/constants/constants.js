@@ -1,5 +1,5 @@
 const apiDetails = {
-  "apiEndpoint" : "http://3.216.31.206:4059/api/",
+  "apiEndpoint" : "http://52.201.240.126:4059/api/",
   "interval" : "process-interval",
   "segments" : "process-segments",
   "range" : "process-range",
