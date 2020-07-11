@@ -1,12 +1,15 @@
-import React from 'react';
-import './App.css';
-import 'bootstrap/dist/css/bootstrap.css';
-
-import SegmentVideo from '../src/components/segmentVideo/segmentVideo';
+import React from "react";
+import "./App.css";
+import "bootstrap/dist/css/bootstrap.css";
+import { ToastContainer } from "react-toastify";
+import SegmentVideo from "../src/components/segmentVideo/segmentVideo";
 
 function App() {
   return (
+    <>
+      <ToastContainer />
       <SegmentVideo></SegmentVideo>
+    </>
   );
 }
 

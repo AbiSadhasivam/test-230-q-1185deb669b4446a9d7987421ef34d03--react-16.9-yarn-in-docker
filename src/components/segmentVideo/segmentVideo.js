@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Button, Form, FormGroup, Label, Input } from "reactstrap";
+
 import { apiFetch } from "../../services/apiService/apiService";
-import Loader from "../spinner/spinner";
-import "./segmentVideo.css";
 import { isValidURL, isValidInterval } from "../../services/utils/utils";
+import "react-toastify/dist/ReactToastify.css";
+
+import Loader from "../spinner/spinner";
 import apiDetails from "../../constants/constants";
+import toast from "../toast/Toast";
+
+import "./segmentVideo.css";
+
 function SegmentVideo() {
   const [videoLink, setVideoLink] = useState();
   const [segmentType, setsegmentType] = useState("Interval Duration");
@@ -69,7 +75,7 @@ function SegmentVideo() {
   let getSegementedVideo = () => {
     toggleLoader(true);
     let method = "POST",
-      apiEndpoint = apiDetails['apiEndpoint'],
+      apiEndpoint = apiDetails["apiEndpoint"],
       data = {
         video_link: videoLink,
       };
@@ -77,29 +83,38 @@ function SegmentVideo() {
     setSegmentedVideos([]);
     switch (segmentType) {
       case "Interval Duration":
-        data = { ...data, ...segmentSettings };
-        apiEndpoint = apiEndpoint + apiDetails['interval'];
+        data = {
+          video_link:
+            "https://codejudge-question-artifacts.s3.ap-south-1.amazonaws.com/q-94/big_buck_bunny_720p_2mb.mp4",
+          interval_duration: 5,
+        };
+        apiEndpoint += "process-interval";
         break;
       case "Number of Segments":
         data = { ...data, ...segmentSettings };
-        apiEndpoint = apiEndpoint + apiDetails['segments'];
+        apiEndpoint = apiEndpoint + apiDetails["segments"];
         break;
       case "Range Duration":
         data = { ...data, ...segmentSettings };
-        apiEndpoint = apiEndpoint + apiDetails['range'];
+        apiEndpoint = apiEndpoint + apiDetails["range"];
         break;
       default: {
         console.log("nothing");
       }
     }
-    apiFetch(apiEndpoint, method, data).then((data) => {
-      toggleLoader(false);
-      if (data) {
-        setSegmentedVideos(data.interval_videos);
-      } else {
-        //show notification
+    apiFetch(apiEndpoint, method, data).then(
+      (data) => {
+        toggleLoader(false);
+        if (data) {
+          toast.success("Succesfully segmented the video");
+          setSegmentedVideos(data.interval_videos);
+        }
+      },
+      (err) => {
+        toggleLoader(false);
+        toast.error("Error in combining the video");
       }
-    });
+    );
   };
   let videoLinkChanged = (evt) => {
     setVideoLink(evt.target.value);
@@ -133,7 +148,7 @@ function SegmentVideo() {
     switch (type) {
       case "height":
       case "width":
-        val = +evt.target.value;
+        val = evt.target.value;
         setCombineVideoSettings((prevState) => ({
           ...prevState,
           [type]: val,
@@ -170,12 +185,22 @@ function SegmentVideo() {
   };
   let getCombinedVideo = () => {
     let method = "POST",
-      apiEndpoint = apiDetails['apiEndpoint'];
+      apiEndpoint = apiDetails["apiEndpoint"];
     apiEndpoint = apiEndpoint + "combine-video";
-
-    apiFetch(apiEndpoint, method, combineSettings).then((data) => {
-      setCombinedVideo(data);
-    });
+    toggleLoader(true);
+    apiFetch(apiEndpoint, method, combineSettings).then(
+      (data) => {
+        toggleLoader(false);
+        if (data) {
+          toast.success("Succesfully combined the video");
+          setCombinedVideo(data);
+        }
+      },
+      (err) => {
+        toggleLoader(false);
+        toast.error("Error in combining the video");
+      }
+    );
   };
 
   useEffect(() => {

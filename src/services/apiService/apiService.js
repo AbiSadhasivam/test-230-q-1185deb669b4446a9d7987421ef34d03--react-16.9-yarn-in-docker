@@ -10,7 +10,7 @@ export const apiFetch = async (
     result = handleValidResponse(result);
     return result.json();
   } catch (error) {
-    console.log(error);
+    return Promise.reject(error);
   }
 };
 async function getRequest(requestType, body) {
