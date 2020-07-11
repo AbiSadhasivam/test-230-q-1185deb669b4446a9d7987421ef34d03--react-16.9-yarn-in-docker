@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { Button, Form, FormGroup, Label, Input } from "reactstrap";
+import React, { useState, useEffect } from 'react';
+import { Button, Form, FormGroup, Label, Input } from 'reactstrap';
 
-import { apiFetch } from "../../services/apiService/apiService";
-import { isValidURL, isValidInterval } from "../../services/utils/utils";
+import { apiFetch } from '../../services/apiService/apiService';
+import { isValidURL, isValidInterval } from '../../services/utils/utils';
 
-import Loader from "../Spinner/Spinner";
-import apiDetails from "../../constants/constants";
-import toast from "../Toast/Toast";
-import VideoList from "../VideoList/VideoList";
+import Loader from '../Spinner/Spinner';
+import apiDetails from '../../constants/constants';
+import toast from '../Toast/Toast';
+import VideoList from '../VideoList/VideoList';
 
-import "./SegmentVideo.css";
+import './SegmentVideo.css';
 
 function SegmentVideo() {
   const [videoLink, setVideoLink] = useState();
-  const [segmentType, setsegmentType] = useState("Interval Duration");
+  const [segmentType, setsegmentType] = useState('Interval Duration');
   const [segmentSettings, setSegmentSettings] = useState({});
   const [segmentedVideos, setSegmentedVideos] = useState([]);
   const [combinedVideo, setCombinedVideo] = useState();
@@ -21,8 +21,8 @@ function SegmentVideo() {
   const [disableCombine, setDisableCombine] = useState(true);
   const [combineSettings, setCombineVideoSettings] = useState({
     segments: [],
-    height: "",
-    width: "",
+    height: '',
+    width: '',
   });
 
   const [showLoader, setLoaderVisiblity] = useState(false);
@@ -62,10 +62,10 @@ function SegmentVideo() {
     }));
   };
   let addRangeDuration = (evt) => {
-    let rangeList = segmentSettings["interval_range"] || [];
+    let rangeList = segmentSettings['interval_range'] || [];
     rangeList.push({
-      start: "",
-      end: "",
+      start: '',
+      end: '',
     });
     setSegmentSettings((prevState) => ({
       ...prevState,
@@ -74,7 +74,7 @@ function SegmentVideo() {
   };
   let getSegementedVideo = () => {
     toggleLoader(true);
-    let method = "POST",
+    let method = 'POST',
       apiEndpoint = process.env.REACT_APP_API_URL,
       data = {
         video_link: videoLink,
@@ -82,33 +82,33 @@ function SegmentVideo() {
 
     setSegmentedVideos([]);
     switch (segmentType) {
-      case "Interval Duration":
+      case 'Interval Duration':
         data = { ...data, ...segmentSettings };
-        apiEndpoint = apiEndpoint + apiDetails["interval"]
+        apiEndpoint = apiEndpoint + apiDetails['interval'];
         break;
-      case "Number of Segments":
+      case 'Number of Segments':
         data = { ...data, ...segmentSettings };
-        apiEndpoint = apiEndpoint + apiDetails["segments"];
+        apiEndpoint = apiEndpoint + apiDetails['segments'];
         break;
-      case "Range Duration":
+      case 'Range Duration':
         data = { ...data, ...segmentSettings };
-        apiEndpoint = apiEndpoint + apiDetails["range"];
+        apiEndpoint = apiEndpoint + apiDetails['range'];
         break;
       default: {
-        console.log("nothing");
+        console.log('nothing');
       }
     }
     apiFetch(apiEndpoint, method, data).then(
       (data) => {
         toggleLoader(false);
         if (data) {
-          toast.success("Succesfully segmented the video");
+          toast.success('Succesfully segmented the video');
           setSegmentedVideos(data.interval_videos);
         }
       },
       (err) => {
         toggleLoader(false);
-        toast.error("Error in combining the video");
+        toast.error('Error in combining the video');
       }
     );
   };
@@ -128,9 +128,9 @@ function SegmentVideo() {
   let addVideo = (evt) => {
     let combineVideoList = combineSettings.segments;
     combineVideoList.push({
-      video_url: "",
-      start: "",
-      end: "",
+      video_url: '',
+      start: '',
+      end: '',
     });
     setCombineVideoSettings((prevState) => ({
       ...prevState,
@@ -138,20 +138,20 @@ function SegmentVideo() {
     }));
   };
   let combineSettingsChanged = (evt) => {
-    let val = "";
+    let val = '';
     let segments = [];
     let { id, type } = evt.target.dataset;
     switch (type) {
-      case "height":
-      case "width":
+      case 'height':
+      case 'width':
         val = evt.target.value;
         setCombineVideoSettings((prevState) => ({
           ...prevState,
           [type]: val,
         }));
         break;
-      case "video_url":
-        segments = combineSettings["segments"];
+      case 'video_url':
+        segments = combineSettings['segments'];
         val = evt.target.value;
         segments[id][type] = val;
         setCombineVideoSettings((prevState) => ({
@@ -160,7 +160,7 @@ function SegmentVideo() {
         }));
         break;
       default:
-        segments = combineSettings["segments"];
+        segments = combineSettings['segments'];
         val = +evt.target.value;
         segments[id][type] = val;
         setCombineVideoSettings((prevState) => ({
@@ -180,21 +180,21 @@ function SegmentVideo() {
     }));
   };
   let getCombinedVideo = () => {
-    let method = "POST",
-      apiEndpoint = apiDetails["apiEndpoint"];
-    apiEndpoint = apiEndpoint + "combine-video";
+    let method = 'POST',
+      apiEndpoint = apiDetails['apiEndpoint'];
+    apiEndpoint = apiEndpoint + 'combine-video';
     toggleLoader(true);
     apiFetch(apiEndpoint, method, combineSettings).then(
       (data) => {
         toggleLoader(false);
         if (data) {
-          toast.success("Succesfully combined the video");
+          toast.success('Succesfully combined the video');
           setCombinedVideo(data);
         }
       },
       (err) => {
         toggleLoader(false);
-        toast.error("Error in combining the video");
+        toast.error('Error in combining the video');
       }
     );
   };
@@ -202,21 +202,21 @@ function SegmentVideo() {
   useEffect(() => {
     let isNotValid = false;
     switch (segmentType) {
-      case "Interval Duration":
+      case 'Interval Duration':
         isNotValid =
           !isValidURL(videoLink) ||
-          !isValidInterval(segmentSettings["interval_duration"]);
+          !isValidInterval(segmentSettings['interval_duration']);
         break;
-      case "Range Duration":
+      case 'Range Duration':
         if (
-          segmentSettings["interval_range"] &&
-          segmentSettings["interval_range"].length
+          segmentSettings['interval_range'] &&
+          segmentSettings['interval_range'].length
         ) {
           isNotValid = false;
-          let startArr = segmentSettings["interval_range"].map((range) => {
+          let startArr = segmentSettings['interval_range'].map((range) => {
             return range.start;
           });
-          let endArr = segmentSettings["interval_range"].map((range) => {
+          let endArr = segmentSettings['interval_range'].map((range) => {
             return range.end;
           });
           startArr.forEach((element, id) => {
@@ -230,13 +230,13 @@ function SegmentVideo() {
           isNotValid = true;
         }
         break;
-      case "Number of Segments":
+      case 'Number of Segments':
         isNotValid =
           !isValidURL(videoLink) ||
-          !isValidInterval(segmentSettings["no_of_segments"]);
+          !isValidInterval(segmentSettings['no_of_segments']);
         break;
       default: {
-        console.log("nothing");
+        console.log('nothing');
       }
     }
 
@@ -245,12 +245,12 @@ function SegmentVideo() {
 
   useEffect(() => {
     let isNotValid = false,
-      segments = combineSettings["segments"],
-      height = /[0-9]/.test(combineSettings["height"])
-        ? +combineSettings["height"]
+      segments = combineSettings['segments'],
+      height = /[0-9]/.test(combineSettings['height'])
+        ? +combineSettings['height']
         : null,
-      width = /[0-9]/.test(combineSettings["width"])
-        ? +combineSettings["width"]
+      width = /[0-9]/.test(combineSettings['width'])
+        ? +combineSettings['width']
         : null;
     isNotValid =
       height === null || width === null || height <= 0 || width <= 0
@@ -324,7 +324,7 @@ function SegmentVideo() {
                   <option value='Number of Segments'>Number of Segments</option>
                 </Input>
               </FormGroup>
-              {segmentType === "Interval Duration" && (
+              {segmentType === 'Interval Duration' && (
                 <FormGroup>
                   <Label className='inputLabel' for='videoLink'>
                     Interval Duration(in seconds)...
@@ -338,7 +338,7 @@ function SegmentVideo() {
                   />
                 </FormGroup>
               )}
-              {segmentType === "Range Duration" && (
+              {segmentType === 'Range Duration' && (
                 <div>
                   <Button
                     className='btn add-range-duration'
@@ -346,9 +346,9 @@ function SegmentVideo() {
                   >
                     Add Range Duration
                   </Button>
-                  {segmentSettings["interval_range"] &&
-                    segmentSettings["interval_range"].map((range, id) => (
-                      <FormGroup className='range-group' key={"interval-" + id}>
+                  {segmentSettings['interval_range'] &&
+                    segmentSettings['interval_range'].map((range, id) => (
+                      <FormGroup className='range-group' key={'interval-' + id}>
                         <div className='group'>
                           <Label className='inputLabel' for='range-start'>
                             Range Duration Start
@@ -357,7 +357,7 @@ function SegmentVideo() {
                             type='number'
                             name='range-start'
                             id='range-start'
-                            className={"range-duration-start-" + Number(id + 1)}
+                            className={'range-duration-start-' + Number(id + 1)}
                             data-id={id}
                             data-type='start'
                             value={range.start}
@@ -375,14 +375,14 @@ function SegmentVideo() {
                             data-id={id}
                             data-type='end'
                             value={range.end}
-                            className={"range-duration-end-" + Number(id + 1)}
+                            className={'range-duration-end-' + Number(id + 1)}
                             onChange={segmentRangeChanged}
                           />
                         </div>
                         <div className='group'>
                           <Button
                             className={
-                              "btn delete-range-duration-" + Number(id + 1)
+                              'btn delete-range-duration-' + Number(id + 1)
                             }
                             data-id={id}
                             onClick={deleteRange}
@@ -394,7 +394,7 @@ function SegmentVideo() {
                     ))}
                 </div>
               )}
-              {segmentType === "Number of Segments" && (
+              {segmentType === 'Number of Segments' && (
                 <FormGroup>
                   <Label className='inputLabel' for='videoLink'>
                     Number of Segments...
@@ -433,9 +433,9 @@ function SegmentVideo() {
           <Button className='btn add-video' onClick={addVideo}>
             Add Video
           </Button>
-          {combineSettings["segments"] &&
-            combineSettings["segments"].map((video, id) => (
-              <FormGroup className='range-group' key={"range-" + id}>
+          {combineSettings['segments'] &&
+            combineSettings['segments'].map((video, id) => (
+              <FormGroup className='range-group' key={'range-' + id}>
                 <div className='group'>
                   <Label className='inputLabel' for='video-link'>
                     Video Link...
@@ -444,7 +444,7 @@ function SegmentVideo() {
                     type='text'
                     name='videoLink'
                     id='video-link'
-                    className={"combine-video-" + Number(id + 1)}
+                    className={'combine-video-' + Number(id + 1)}
                     data-id={id}
                     data-type='video_url'
                     value={video.video_url}
@@ -460,7 +460,7 @@ function SegmentVideo() {
                     name='combine-start'
                     id='combine-start'
                     className={
-                      "combine-video-range-duration-start-" + Number(id + 1)
+                      'combine-video-range-duration-start-' + Number(id + 1)
                     }
                     data-id={id}
                     data-type='start'
@@ -477,7 +477,7 @@ function SegmentVideo() {
                     name='combine-end'
                     id='combine-end'
                     className={
-                      "combine-video-range-duration-end-" + Number(id + 1)
+                      'combine-video-range-duration-end-' + Number(id + 1)
                     }
                     data-id={id}
                     data-type='end'
@@ -487,7 +487,7 @@ function SegmentVideo() {
                 </div>
                 <div className='group'>
                   <Button
-                    className={"btn delete-range-duration-" + Number(id + 1)}
+                    className={'btn delete-range-duration-' + Number(id + 1)}
                     data-id={id}
                     onClick={deleteSegment}
                   >

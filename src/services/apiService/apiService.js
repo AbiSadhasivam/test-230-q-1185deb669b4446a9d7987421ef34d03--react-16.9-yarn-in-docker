@@ -1,8 +1,4 @@
-export const apiFetch = async (
-  endpoint,
-  requestType,
-  data,
-) => {
+export const apiFetch = async (endpoint, requestType, data) => {
   let apiEndpoint = endpoint;
   try {
     let request = await getRequest(requestType, data);
@@ -18,14 +14,13 @@ async function getRequest(requestType, body) {
     method: requestType,
     headers: {
       'Content-Type': 'application/json',
-      'Accept': 'application/json'
+      Accept: 'application/json',
     },
   };
 
   if (body) {
     request.body = JSON.stringify(body);
   }
-
 
   return Promise.resolve(request);
 }
@@ -36,7 +31,7 @@ function handleValidResponse(result) {
   }
 
   if (!result.status) {
-    let error = new Error("Backend not responding");
+    let error = new Error('Backend not responding');
     error.response = result;
     throw error;
   }
