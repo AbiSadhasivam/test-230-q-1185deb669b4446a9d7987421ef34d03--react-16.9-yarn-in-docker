@@ -5,16 +5,19 @@ import { Button, Form, FormGroup, Label, Input } from 'reactstrap';
 import { apiFetch } from '../../services/apiService/apiService';
 import { isValidURL, isValidInput } from '../../services/utils/utils';
 
-import Loader from '../Spinner/Spinner';
-import apiDetails from '../../constants/constants';
-import toast from '../Toast/Toast';
+import Loader from '../Loader/Loader';
+import apiDetails from '../../constants/apiDetails';
+import Toast from '../Toast/Toast';
 import VideoList from '../VideoList/VideoList';
 
 import './SegmentVideo.css';
 
-function SegmentVideo() {
+const SegmentVideo = () => {
+  const noOfSegments = 'Number of Segments';
+  const intervalDuration = 'Interval Duration';
+  const rangeDuration = 'Range Duration';
   const [videoLink, setVideoLink] = useState();
-  const [segmentType, setsegmentType] = useState('Interval Duration');
+  const [segmentType, setsegmentType] = useState(intervalDuration);
   const [segmentSettings, setSegmentSettings] = useState({});
   const [segmentedVideos, setSegmentedVideos] = useState([]);
   const [combinedVideo, setCombinedVideo] = useState();
@@ -104,13 +107,13 @@ function SegmentVideo() {
     setSegmentedVideos([]);
 
     switch (segmentType) {
-      case 'Interval Duration':
+      case intervalDuration:
         apiEndpoint = apiEndpoint + apiDetails['interval'];
         break;
-      case 'Number of Segments':
+      case noOfSegments:
         apiEndpoint = apiEndpoint + apiDetails['segments'];
         break;
-      case 'Range Duration':
+      case rangeDuration:
         apiEndpoint = apiEndpoint + apiDetails['range'];
         break;
       default: {
@@ -122,13 +125,13 @@ function SegmentVideo() {
       (data) => {
         toggleLoader(false);
         if (data) {
-          toast.success('Succesfully segmented the video');
+          Toast.success('Succesfully segmented the video');
           setSegmentedVideos(data.interval_videos);
         }
       },
       (err) => {
         toggleLoader(false);
-        toast.error('Error in combining the video');
+        Toast.error('Error in combining the video');
       }
     );
   };
@@ -187,7 +190,7 @@ function SegmentVideo() {
   };
   let getCombinedVideo = () => {
     let method = 'POST',
-      apiEndpoint = process.env.REACT_APP_API_URL.trim()+'/api/';
+      apiEndpoint = process.env.REACT_APP_API_URL.trim() + '/api/';
 
     apiEndpoint = apiEndpoint + 'combine-video';
     toggleLoader(true);
@@ -196,46 +199,47 @@ function SegmentVideo() {
       (data) => {
         toggleLoader(false);
         if (data) {
-          toast.success('Succesfully combined the video');
+          Toast.success('Succesfully combined the video');
           setCombinedVideo(data);
         }
       },
       (err) => {
         toggleLoader(false);
-        toast.error('Error in combining the video');
+        Toast.error('Error in combining the video');
       }
     );
   };
 
+  let checkIsRangeValid = (segments) => {
+    return segments.some((segment) => {
+      let start = /[0-9]/.test(segment.start) ? +segment.start : -1;
+      let end = /[0-9]/.test(segment.end) ? +segment.end : -1;
+      if (start < 0 || end <= start) {
+        return true;
+      }
+    });
+  };
   // Effect changes
   useEffect(() => {
     let isNotValid = false;
     switch (segmentType) {
-      case 'Interval Duration':
+      case intervalDuration:
         isNotValid =
           !isValidURL(videoLink) ||
           !isValidInput(segmentSettings['interval_duration']);
         break;
-      case 'Range Duration':
+      case rangeDuration:
         if (
           segmentSettings['interval_range'] &&
           segmentSettings['interval_range'].length
         ) {
           let segments = segmentSettings['interval_range'];
-
-          isNotValid = false;
-          isNotValid = segments.some((segment) => {
-            let start = /[0-9]/.test(segment.start) ? +segment.start : -1;
-            let end = /[0-9]/.test(segment.end) ? +segment.end : -1;
-            if (start < 0 || end <= start) {
-              return true;
-            }
-          });
+          isNotValid = checkIsRangeValid(segments);
         } else {
           isNotValid = true;
         }
         break;
-      case 'Number of Segments':
+      case noOfSegments:
         isNotValid =
           !isValidURL(videoLink) ||
           !isValidInput(segmentSettings['no_of_segments']);
@@ -245,6 +249,17 @@ function SegmentVideo() {
 
     isNotValid ? setDisableSegment(true) : setDisableSegment(false);
   }, [videoLink, segmentSettings, segmentType]);
+
+  let checkIsSegmentValid = (segments) => {
+    return segments.some((segment) => {
+      let video = isValidURL(segment.video_url);
+      let start = /[0-9]/.test(segment.start) ? +segment.start : -1;
+      let end = /[0-9]/.test(segment.end) ? +segment.end : -1;
+      if (!video || start < 0 || end <= start) {
+        return true;
+      }
+    });
+  };
 
   useEffect(() => {
     let isNotValid = false,
@@ -257,14 +272,7 @@ function SegmentVideo() {
         : -1;
     isNotValid = height <= 0 || width <= 0 ? true : false;
     if (segments.length && !isNotValid) {
-      isNotValid = segments.some((segment) => {
-        let video = isValidURL(segment.video_url);
-        let start = /[0-9]/.test(segment.start) ? +segment.start : -1;
-        let end = /[0-9]/.test(segment.end) ? +segment.end : -1;
-        if (!video || start < 0 || end <= start) {
-          return true;
-        }
-      });
+      isNotValid = checkIsSegmentValid(segments);
     } else {
       isNotValid = true;
     }
@@ -379,7 +387,7 @@ function SegmentVideo() {
                     ))}
                 </div>
               )}
-              {segmentType === 'Number of Segments' && (
+              {segmentType === noOfSegments && (
                 <FormGroup>
                   <Label className='inputLabel' for='videoLink'>
                     Number of Segments...
@@ -534,6 +542,6 @@ function SegmentVideo() {
       </div>
     </>
   );
-}
+};
 
 export default SegmentVideo;
